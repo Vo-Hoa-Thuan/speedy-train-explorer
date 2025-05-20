@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
-import { Circle } from 'lucide-react'; // Thay TrainFront bằng Circle
+import { Circle } from 'lucide-react';
 
 const STATIONS = [
-  { name: 'A', position: 0, color: 'bg-red-500' },
-  { name: 'B', position: 200, color: 'bg-yellow-500' },
-  { name: 'C', position: 400, color: 'bg-green-500' },
+  { name: 'Bến Thành', position: 0, color: 'bg-sky-500' }, // Ga đầu tiên, màu xanh metro
+  { name: 'Nhà hát TP', position: 200, color: 'bg-sky-500' }, // Ga thứ hai, màu xanh metro
+  { name: 'Ba Son', position: 400, color: 'bg-sky-500' },   // Ga thứ ba, màu xanh metro
 ];
 const SEGMENT_DURATION = 5000; // 5 giây (ms)
 const UPDATE_INTERVAL = 100;  // 100 ms
@@ -17,13 +17,12 @@ const STATION_DOT_SIZE_CLASS = "w-3 h-3"; // Tailwind class for 12px
 const TrainSimulator: React.FC = () => {
   const [trainPosition, setTrainPosition] = useState(STATIONS[0].position);
   const [isRunning, setIsRunning] = useState(false);
-  const [currentStationIndex, setCurrentStationIndex] = useState(0); // Index của ga tàu vừa rời đi hoặc đang ở
+  const [currentStationIndex, setCurrentStationIndex] = useState(0);
   const [segmentStartTime, setSegmentStartTime] = useState(0);
   const [status, setStatus] = useState(`Tàu đang ở Ga ${STATIONS[0].name}`);
 
   const handleStart = useCallback(() => {
     if (isRunning || currentStationIndex >= STATIONS.length - 1) {
-      // Đã chạy hoặc đã đến ga cuối
       return;
     }
     setIsRunning(true);
@@ -73,10 +72,10 @@ const TrainSimulator: React.FC = () => {
 
   return (
     <div className="flex flex-col items-center p-4 md:p-8 space-y-8 bg-white shadow-lg rounded-lg">
-      <h2 className="text-xl md:text-2xl font-semibold text-gray-700">Mô phỏng tàu chạy</h2>
+      <h2 className="text-xl md:text-2xl font-semibold text-gray-700">Mô phỏng tuyến Metro TP.HCM (Tuyến 1)</h2>
 
       {/* Đường ray và các ga */}
-      <div className="relative w-[450px] h-16 bg-gray-200 rounded flex items-center px-[calc(TRACK_OFFSET_X-STATION_DOT_SIZE_CLASS_WIDTH/2)]"> {/* Note: STATION_DOT_SIZE_CLASS_WIDTH is not defined, assuming it's for centering logic */}
+      <div className="relative w-[450px] h-16 bg-gray-200 rounded flex items-center px-[calc(TRACK_OFFSET_X-3px)]"> {/* Adjusting for STATION_DOT_SIZE_CLASS w-3 (12px / 2 = 6px, but class uses 3 for some reason, let's use 6px or 3*2 = 6 for calc based on w-3, or simply make it consistent for centering. Using 6px for 12px dot / 2. Current: 1.5*4 = 6px, if w-3 is 12px. If w-3 is 0.75rem which is 12px, then half is 6px. TRACK_OFFSET_X - (12px/2) = TRACK_OFFSET_X - 6px. Let's try to make it TRACK_OFFSET_X - 6px */}
         {/* Đường ray */}
         <div 
           className="absolute top-1/2 w-[400px] h-1 bg-gray-400 transform -translate-y-1/2"
