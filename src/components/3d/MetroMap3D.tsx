@@ -1,16 +1,17 @@
 
 import React, { useState, useEffect, useRef, Suspense } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { Canvas } from '@react-three/fiber';
 import { OrbitControls, Environment } from '@react-three/drei';
 import * as THREE from 'three';
 import Station3D from './Station3D';
 import TrackSegment3D from './TrackSegment3D';
-import Train3D from './Train3D';
+import TrainAnimation from './TrainAnimation'; // Import the new component
 import { HO_CHI_MINH_METRO_LINE_1_STATIONS as STATIONS, STATION_DISTANCE } from '@/data/metroStationsData';
 import { Button } from '@/components/ui/button';
 
-const SEGMENT_DURATION = 5000; // 5 seconds per segment
-const UPDATE_INTERVAL = 50; // ms for useFrame updates
+// SEGMENT_DURATION and UPDATE_INTERVAL are now managed within TrainAnimation or not needed globally here
+// const SEGMENT_DURATION = 5000; 
+// const UPDATE_INTERVAL = 50;
 
 const MetroMap3D: React.FC = () => {
   const [trainPositionVec, setTrainPositionVec] = useState(new THREE.Vector3(...STATIONS[0].position));
@@ -28,53 +29,10 @@ const MetroMap3D: React.FC = () => {
     setStatus(`Đang di chuyển tới Ga ${STATIONS[currentSegmentIndex + 1].name}`);
   };
 
-  useFrame((_state, delta) => {
-    if (!isRunning || currentSegmentIndex >= STATIONS.length - 1) {
-      return;
-    }
+  // useFrame logic is now moved to TrainAnimation component
 
-    const now = Date.now();
-    const elapsedTime = now - segmentStartTime;
-    const fromStation = STATIONS[currentSegmentIndex];
-    const toStation = STATIONS[currentSegmentIndex + 1];
-
-    if (!fromStation || !toStation) {
-        setIsRunning(false);
-        return;
-    }
-    
-    const fromVec = new THREE.Vector3(...fromStation.position);
-    const toVec = new THREE.Vector3(...toStation.position);
-
-    if (elapsedTime >= SEGMENT_DURATION) {
-      setTrainPositionVec(toVec.clone());
-      trainRef.current.position.copy(toVec);
-
-      const nextSegmentIndex = currentSegmentIndex + 1;
-      setCurrentSegmentIndex(nextSegmentIndex);
-      setStatus(`Tàu đang ở Ga ${toStation.name}`);
-
-      if (nextSegmentIndex >= STATIONS.length - 1) {
-        setIsRunning(false);
-        setStatus(`Tàu đã đến Ga ${toStation.name}`);
-      } else {
-        setSegmentStartTime(Date.now());
-        setStatus(`Đang di chuyển tới Ga ${STATIONS[nextSegmentIndex + 1].name}`);
-      }
-    } else {
-      const progress = elapsedTime / SEGMENT_DURATION;
-      const newPos = new THREE.Vector3().lerpVectors(fromVec, toVec, progress);
-      setTrainPositionVec(newPos.clone());
-      if (trainRef.current) {
-        trainRef.current.position.copy(newPos);
-      }
-    }
-  });
-
-  // Adjust initial camera position to view the whole line
   const lineLength = STATIONS.length * STATION_DISTANCE;
   const cameraPosition: [number, number, number] = [lineLength / 2, lineLength / 4, lineLength / 2.5];
-
 
   return (
     <div className="flex flex-col items-center p-4 md:p-8 space-y-4 bg-gray-800 shadow-lg rounded-lg w-full h-[600px]">
@@ -98,15 +56,24 @@ const MetroMap3D: React.FC = () => {
               />
             ))}
             
-            <mesh ref={trainRef} position={trainPositionVec}>
-                <boxGeometry args={[0.8, 0.4, 0.4]} /> {/* Duplicated for ref access */}
-                <meshStandardMaterial color="#1EAEDB" />
-            </mesh>
+            {/* Train rendering and animation logic is now handled by TrainAnimation */}
+            <TrainAnimation
+              isRunning={isRunning}
+              setIsRunning={setIsRunning}
+              currentSegmentIndex={currentSegmentIndex}
+              setCurrentSegmentIndex={setCurrentSegmentIndex}
+              segmentStartTime={segmentStartTime}
+              setSegmentStartTime={setSegmentStartTime}
+              setStatus={setStatus}
+              trainRef={trainRef}
+              trainPositionVec={trainPositionVec}
+              setTrainPositionVec={setTrainPositionVec}
+            />
 
             <OrbitControls 
               enableZoom={true} 
               enablePan={true} 
-              target={[lineLength/2 - STATION_DISTANCE, 0, 0]} // Target center of the line
+              target={[lineLength/2 - STATION_DISTANCE, 0, 0]}
             />
           </Suspense>
         </Canvas>
@@ -128,4 +95,3 @@ const MetroMap3D: React.FC = () => {
 };
 
 export default MetroMap3D;
-
