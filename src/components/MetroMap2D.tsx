@@ -4,13 +4,13 @@ import { HO_CHI_MINH_METRO_LINE_1_STATIONS as STATIONS, STATION_DISTANCE } from 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Map, Route, Play, RotateCcw } from 'lucide-react';
+import { Map, Route, Play, RotateCcw, TrainFront } from 'lucide-react';
 import { useTrainMovementLogic } from '@/hooks/useTrainMovementLogic';
 
 // Constants for 2D rendering
 const TRACK_HEIGHT = 80; // Total height for the track area
 const STATION_MARKER_SIZE = 12; // Size of the station dot
-const TRAIN_MARKER_SIZE = 16; // Size of the train dot
+const TRAIN_MARKER_SIZE = 24; // Increased size of the train dot for better visibility
 const PX_PER_MODEL_UNIT = 10; // Pixels per unit from station data positions
 
 const MetroMap2D: React.FC = () => {
@@ -218,21 +218,23 @@ const MetroMap2D: React.FC = () => {
             </div>
           ))}
 
-          {/* Train */}
+          {/* Train with Train Icon */}
           <div 
-            className="absolute rounded-full"
+            className="absolute transition-all duration-100 ease-linear flex flex-col items-center justify-center"
             style={{
-              width: `${TRAIN_MARKER_SIZE}px`,
-              height: `${TRAIN_MARKER_SIZE}px`,
-              backgroundColor: '#1EAEDB', // Train color
-              border: '2px solid white',
               left: `${(trainXPosition - minX) * PX_PER_MODEL_UNIT + STATION_MARKER_SIZE / 2 - TRAIN_MARKER_SIZE / 2}px`,
-              top: `${TRACK_HEIGHT / 2 - TRAIN_MARKER_SIZE / 2}px`,
-              transition: 'left 0.1s linear', // Smooth movement
+              top: `${TRACK_HEIGHT / 2 - TRAIN_MARKER_SIZE / 2 - 4}px`, // Adjusted to be more centered
               zIndex: 10,
             }}
-            title="Tàu Metro" // Placeholder for click interaction later
-          />
+            title="Tàu Metro"
+          >
+            {/* Train Icon */}
+            <div className="bg-[#1EAEDB] p-1 rounded-md border-2 border-white shadow-lg">
+              <TrainFront size={TRAIN_MARKER_SIZE} color="white" />
+            </div>
+            {/* Small train label */}
+            <div className="text-xs font-bold text-white bg-blue-600 px-1 rounded mt-1">Tàu</div>
+          </div>
         </div>
       </div>
 
@@ -244,4 +246,3 @@ const MetroMap2D: React.FC = () => {
 };
 
 export default MetroMap2D;
-
